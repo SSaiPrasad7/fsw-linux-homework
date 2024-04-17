@@ -22,7 +22,7 @@ int open_tcp_socket(int port)
     
     if(sock_fd < 0) 
     {
-        perror("Unable to create socket");
+        perror("TCP Socket creation failed.");
         return -1;
     }
 
@@ -35,7 +35,7 @@ int open_tcp_socket(int port)
     // Send connection request to server
     if(connect(sock_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) 
     {
-        perror("Connection failed");
+        perror("TCP Connection failed.");
         return -1;
     }
 
@@ -45,7 +45,7 @@ int open_tcp_socket(int port)
     timeout.tv_usec = 0.1 * 1000; // Set timeout in milliseconds
     if (setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
     {
-        perror("ERROR setting socket options");
+        perror("Setting Socket Options Failed.");
         return -1;
     }
 
@@ -58,7 +58,9 @@ void *recv_data(void *arg)
     int thread_id = *((int *) arg + 1);
     char *save_ptr = NULL;
 
-    char buffer[1024]; // Separate buffer for each tcp port
+    // Separate buffer for each tcp port
+    char buffer[1024]; 
+    // Initialize the buffer with --
     strncpy(buffer, "--\n", sizeof(buffer));
 
     while (1)
@@ -72,9 +74,17 @@ void *recv_data(void *arg)
             }
 
             char *out = strtok_r(buffer, "\n", &save_ptr);
+
+            // Get the recent outputs from the server buffer
             while (out != NULL) 
             {
-                recent_out[thread_id] = out;  //get the recent out value
+                // Secure thread synchronization to prevent conflicts 
+                // since the main thread also updates recent_out.
+                if (keep_running)
+                {
+                    // update the out
+                    recent_out[thread_id] = out;   
+                }
                 out = strtok_r(NULL, "\n", &save_ptr);
             }
         }
@@ -116,21 +126,30 @@ int main()
 
     while (1)
     {
+        // Get the current time
         gettimeofday(&now, NULL);
         current_time_msec = ((long int) now.tv_sec * 1000) + ((long int) now.tv_usec / 1000);
+
         if ((current_time_msec - start_time_msec) >= TIMEOUT) 
         {
             keep_running = 0;
             start_time_msec = current_time_msec;
+
             sprintf(output_string, "{\"timestamp\": %lu, \"out1\": \"%s\", \"out2\": \"%s\", \"out3\": \"%s\"}\n",
                     current_time_msec, recent_out[0], recent_out[1], recent_out[2]);
             printf("%s", output_string);
-            strcpy(recent_out[0], "--");
-            strcpy(recent_out[1], "--");
-            strcpy(recent_out[2], "--");
+
+            // To replace the existing values with "--" in all server outputs and clear them from memory.
+            for (int id = 0; id < NUM_THREADS; id++)
+            {
+                strcpy(recent_out[id], "--");
+            }
+
             keep_running = 1;
         }
+
         fflush(stdout);
     }
+
     return 0;
 }
