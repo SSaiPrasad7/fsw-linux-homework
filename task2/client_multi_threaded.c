@@ -203,9 +203,9 @@ int main()
     uint16_t amplitude_property_id = 170;
 
     // Create messages from the fields of Control Protocol
-    create_out1_msg(messages[0], frequency_property_id, 1000);
+    create_out1_msg(messages[0], frequency_property_id, 500);
     create_out1_msg(messages[1], amplitude_property_id, 8000);
-    create_out1_msg(messages[2], frequency_property_id, 2000);
+    create_out1_msg(messages[2], frequency_property_id, 1000);
     create_out1_msg(messages[3], amplitude_property_id, 4000);
 
     // Creation of udp socket
