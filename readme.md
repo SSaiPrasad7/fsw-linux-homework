@@ -29,7 +29,7 @@ them.
 ## Design Description
 
 ### Task1
-Initially, a Python script(`scripts/tcp_client.py`) was developed to analyze the frequency, minimum, and maximum values of data outputs, with their structure inferred from terminal observations. Subsequently, the focus shifted to creating a C client application with three main objectives:
+Initially, a Python script(`scripts/tcp_client.py`) was developed to analyze the frequency, minimum, and maximum values of data outputs, with the structure inferred from terminal observations. Subsequently, the focus shifted to creating a C client application with three main objectives:
 
 1. Ensure proper reception of data from the socket.
 2. Output Unix timestamps in milliseconds and format the data into JSON.
@@ -45,7 +45,7 @@ Please find the log file named `logs/client_multi_100ms.log`
 ### Task2
 For the task of controlling the server, a UDP client(`scripts/udp_client.py`) was developed using Python to retrieve property values such as amplitude and frequency. The client script sends messages to a UDP server in a control protocol format, instructing the server to read property values ranging from 0 to 65535. Upon receiving these instructions, the UDP server prints the corresponding property values on its terminal without sending any data back to the client.
 
-To identify the property IDs for frequency and amplitude, the server terminal logs of all outputs were manually copied and pasted into files under a designated "logs" directory. This allowed for the extraction and analysis of property values from the server logs, facilitating the identification of the specific property IDs associated with frequency and amplitude.
+To identify the property IDs for frequency and amplitude, the server terminal logs of all outputs were manually copied and pasted into files under a designated `logs` directory. This allowed for the extraction and analysis of property values from the server logs, facilitating the identification of the specific property IDs associated with frequency and amplitude.
 
 With the previous work, modified the C implementation of Task 1 to control the server. Key changes involved creating a UDP socket, crafting messages in line with the control protocol, and confirming if the server's "out1" frequency and amplitude aligned with specifications.
 
